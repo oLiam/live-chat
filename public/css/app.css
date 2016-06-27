@@ -1,0 +1,81 @@
+li {
+    list-style: none;
+    padding: 0;
+}
+
+ul {
+    padding: 0;
+}
+
+.panel {
+    margin-top: 20px;
+}
+
+.panel-body {
+    position: relative;
+    min-height: 500px;
+    max-height: 500px;
+}
+
+.message-box {
+    position: absolute;
+    bottom: 10px;
+    width: 97%;
+}
+
+.form-group {
+    width: 90%;
+}
+
+#message {
+    width: 100%;
+}
+
+#messages {
+    overflow: auto;
+    height: 420px;
+}
+
+.time {
+    float:right;
+    position: relative;
+    top: 3px;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.username {
+    margin-right: 10px;
+    color: rgba(0, 0, 0, 0.75);
+}
+
+.send-message {
+    width: 10%;
+}
+
+#chatroom {
+    display: none;
+}
+
+#room-users {
+    display: none;
+}
+
+.col-md-8, .col-md-7, .col-md-6, .col-md-5, .col-md-4, .col-md-3, .col-md-2, .col-md-1 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#rooms {
+    margin-top: 10px;
+}
+
+#user-title {
+    margin-top: 10px;
+}
+
+.log-out:hover {
+    color: grey;
+}

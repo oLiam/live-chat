@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket lekker chatten</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- ROOM LIST -->
+    <div class="panel panel-default col-md-3" id="chat-list">
+        <div class="panel-heading">
+            <h3 id="rooms">
+                <small>Rooms</small>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <ul id="chatroom-list"></ul>
+        </div>
+
+        <!-- CREATE NEW CHATROOM -->
+        <div id="chatrooms" class="col-md-9">
+            <form class="form-inline" id="create-chatroom">
+                <div class="form-group">
+                    <input id="new-chatroom" class="form-control" required/>
+                </div>
+                <br>
+                <br>
+                <button class="btn btn-default">Create</button>
+                <br>
+                <br>
+            </form>
+        </div>
+    </div>
+
+    <!-- CHATROOM -->
+    <div class="panel panel-default col-md-6 col-md-offset-1" id="chatroom">
+        <div class="panel-heading">
+            <div class="chatroom-name">
+            </div>
+
+            <div class="leave-chatroom">
+                <span class="glyphicon glyphicon-log-out log-out" aria-hidden="true"></span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <ul id="messages"></ul>
+            <div class="message-box">
+                <form class="form-inline" id="message-chatroom">
+                    <div class="form-group">
+                        <input id="message" class="form-control" required/>
+                    </div>
+                    <button class="btn btn-default" id="send-message">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default col-md-3 col-md-offset-1" id="room-users">
+        <div class="panel-heading">
+            <h3 id="user-title">
+                <small>Users</small>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <ul id="chatroom-users-list"></ul>
+        </div>
+    </div>
+</div>
+
+
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    // Call Socket
+    var socket = io();
+
+    socket.on('load rooms', function (rooms) {
+        JSON.stringify(rooms);
+        $('#chatroom-list').empty();
+
+        $.each(rooms, function (i, item) {
+            $('#chatroom-list').append('<li><a onclick="joinRoom(' + "'" + item + "'" + ')">' + item + '</a></li>');
+        })
+    });
+
+    // Create chatroom
+    $('#create-chatroom').submit(function () {
+        // Get value from input
+        var chatroom = $('#new-chatroom').val();
+
+        // Send value from input to Socket
+        socket.emit('new chatroom', chatroom);
+
+        $('#new-chatroom').val('');
+
+        // Prevent form submit refresh
+        return false;
+    });
+
+
+    // Show current chatrooms
+    socket.on('all rooms', function (rooms) {
+        JSON.stringify(rooms);
+        $('#chatroom-list').empty();
+
+        $.each(rooms, function (i, item) {
+            $('#chatroom-list').append('<li><a onclick="joinRoom(' + "'" + item + "'" + ')">' + item + '</a></li>');
+        })
+
+    });
+
+    // Join chatroom
+    function joinRoom(roomName) {
+        socket.emit('join chatroom', roomName);
+
+        $('#chatrooms').hide();
+        $('#chat-list').hide();
+        $('#chatroom').show();
+        $('#room-users').show();
+
+
+        $('.chatroom-name').empty();
+        $('.chatroom-name').append('<h3><small>Chat room</small> ' + roomName + '</h3>');
+    }
+
+    // Leave current chatroom
+    $('.leave-chatroom').on('click', function () {
+        $('#messages').empty();
+        $('#chatroom').hide();
+        $('#room-users').hide();
+        $('#chatrooms').show();
+        $('#chat-list').show();
+
+        socket.emit('leave chatroom', '');
+    });
+
+    // Send message to Socket
+    $('#message-chatroom').submit(function () {
+        var message = $('#message').val();
+        socket.emit('chat message', message);
+        $('#message').val('');
+
+        // Prevent form submit refresh
+        return false;
+    });
+
+    // All IDs of the users in the current chat room
+    socket.on('current users', function(users) {
+        $('#chatroom-users-list').empty();
+
+        $.each(users, function (i, item) {
+            $('#chatroom-users-list').append('<li>- '+ i +'</li>');
+        })
+    });
+
+    // Get message and print in chat box
+    socket.on('chat message', function (msg) {
+        var now = new Date(),
+                currentHours = now.getHours(),
+                currentMinutes = now.getMinutes(),
+                currentSeconds = now.getSeconds();
+
+        // If current hours is below 10, add a 0
+        if (currentHours < 10) {
+            var currentHours = '0' + now.getHours();
+        }
+
+        // If current minutes is below 10, add a 0
+        if (currentMinutes < 10) {
+            var currentMinutes = '0' + now.getMinutes();
+        }
+
+        // If current seconds is below 10, add a 0
+        if (currentSeconds < 10) {
+            var currentSeconds = '0' + now.getSeconds();
+        }
+
+        // Put time in a variable (hh:mm:ss)
+        var now = currentHours + ':' + currentMinutes + ':' + currentSeconds;
+
+        $('#messages').append('<li><span class="username"><small>Name</small></span>' + msg + '<span><small class="time">' + now + '</small></span></li><hr>');
+
+        // When new message is added, scroll to bottom of the chatbox
+        $('#messages').animate({
+            scrollTop: $('#messages')[0].scrollHeight
+        }, 1000);
+    });
+</script>
+</body>
+</body>
+</html>

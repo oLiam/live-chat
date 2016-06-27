@@ -1,0 +1,8 @@
+{
+  "name": "chatroom",
+  "description": "Live chat room",
+  "dependencies": {
+      "socket.io": "latest",
+      "express": "latest"
+  }
+}
